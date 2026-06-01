@@ -273,22 +273,19 @@ window.saveToFirebase = function() {
     .catch(e => setSyncStatus('error', 'Error al sincronizar', ''));
 };
 
-import { signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-
 window.signInGoogle = function() {
   if (!fbReady) { alert('Primero configura Firebase con el botón ⚙️'); return; }
   const provider = new GoogleAuthProvider();
-  signInWithRedirect(auth, provider).catch(e => alert('Error al iniciar sesión: ' + e.message));
+  provider.setCustomParameters({ prompt: 'select_account' });
+  signInWithPopup(auth, provider)
+    .then(result => {
+      console.log('Signed in:', result.user.displayName);
+    })
+    .catch(e => {
+      console.error('Sign in error:', e);
+      alert('Error al iniciar sesión: ' + e.message);
+    });
 };
-
-// Handle redirect result on page load
-setTimeout(async () => {
-  if (auth) {
-    try {
-      const result = await getRedirectResult(auth);
-    } catch(e) { console.log('redirect result', e); }
-  }
-}, 1000);
 
 window.signOut = function() {
   if (auth) fbSignOut(auth);
